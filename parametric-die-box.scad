@@ -24,20 +24,26 @@ ylen = 50;
 
 /* nrows and ncols decide how many rows & columns of die compartments
 there will be.*/
-nrows = 4;
-ncols = 1;
+nrows = 3;
+ncols = 3;
 
 /* twall decides the thickness of the compartment walls */
-twall = 1.5;
+twall = 1;
 /* hwall decides the height of the compartment walls */
-hwall = 4;
-
+hwall = 5;
+/* hlid decides how tall the little squares on the top side
+that cap off the compartments are (or, equivalently, how
+far the squares go into the compartments when the box is closed).*/
+hlid = 2;
 /* tbase sets the width of the base plate lip, and hbase its height. */
 tbase = 2;
 hbase = 2;
 
+
 module main() {
     bottom();
+    translate([1.1*(xlen+2*tbase),0,0])
+    top();
 }
 
 module bottom() {
@@ -55,6 +61,29 @@ module bottom() {
     for (k = [0:ncols]) {
         translate([0, k*(ylen - twall) / ncols, 0])
         cube([xlen, twall, hwall]);
+    }
+}
+
+module top() {
+    xbase = xlen + 2 * tbase;
+    ybase = ylen + 2 * tbase;
+    nxwalls = ncols - 1;
+    nywalls = nrows - 1;
+    xclen = (xlen - nxwalls*twall) / ncols;
+    translate([-tbase,-tbase,-hbase])
+    cube([xbase,ybase,hbase]);
+    /* 3% expansion factor built in to account for ABS,
+    should change to allow for arbitrary amount*/
+    difference() {
+        cube([xlen,ylen,hlid]);
+        for (i = [0:nrows]) {
+            translate([i*(xlen - 1.03*twall) / nrows, 0, 0])
+            cube([1.06*twall, ylen, hwall]);
+        }
+        for (k = [0:ncols]) {
+            translate([0, k*(ylen - 1.03*twall) / ncols, 0])
+            cube([xlen, 1.06*twall, hwall]);
+        }
     }
 }
 
