@@ -39,6 +39,10 @@ hlid = 2;
 tbase = 2;
 hbase = 2;
 
+/* expf is a fudge factor for plastic expansion, intended
+to improve the fit between top and bottom. If it's too tight,
+increse it. If it's too loose, decrease it.*/
+expf = 0.6;
 
 module main() {
     bottom();
@@ -74,15 +78,16 @@ module top() {
     cube([xbase,ybase,hbase]);
     /* 3% expansion factor built in to account for ABS,
     should change to allow for arbitrary amount*/
+    twall2 = (1+expf)*twall;
     difference() {
-        cube([xlen,ylen,hlid]);
+        cube([xlen-twall/2,ylen-twall/2,hlid]);
         for (i = [0:nrows]) {
-            translate([i*(xlen - 1.03*twall) / nrows, 0, 0])
-            cube([1.06*twall, ylen, hwall]);
+            translate([i*(xlen - twall2) / nrows, 0, 0])
+            cube([twall2, ylen, hwall]);
         }
         for (k = [0:ncols]) {
-            translate([0, k*(ylen - 1.03*twall) / ncols, 0])
-            cube([xlen, 1.06*twall, hwall]);
+            translate([0, k*(ylen - twall2) / ncols, 0])
+            cube([xlen, twall2, hwall]);
         }
     }
 }
